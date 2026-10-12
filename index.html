@@ -2,334 +2,368 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dragon Ball Z - Treino & Batalha Fácil</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>CS Mobile - Tactical Shooter</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, #09090e 0%, #1a1a2e 100%);
-            color: #ffffff;
-            padding: 15px;
+            background-color: #111;
+            color: #fff;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             min-height: 100vh;
+            overflow: hidden;
+            touch-action: none;
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        header h1 {
-            font-size: 1.5rem;
-            color: #ff8800;
-            text-transform: uppercase;
-            text-shadow: 0 0 12px rgba(255, 136, 0, 0.6);
-            letter-spacing: 1px;
-        }
-
-        header p {
-            font-size: 0.8rem;
-            color: #aaa;
-            margin-top: 4px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 420px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        /* Cartão de Estatísticas */
-        .card-guerreiro {
-            background: #14141f;
-            border: 2px solid #ff5500;
-            border-radius: 12px;
-            padding: 14px;
-            box-shadow: 0 0 15px rgba(255, 85, 0, 0.3);
-        }
-
-        .status-topo {
+        #hud {
+            position: absolute;
+            top: 10px;
+            width: 90%;
+            max-width: 400px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .nome-guerreiro {
+            font-size: 0.9rem;
             font-weight: bold;
-            font-size: 1.05rem;
-            color: #ffaa00;
-        }
-
-        .transformacao {
-            background: #ff5500;
-            color: #fff;
-            padding: 3px 8px;
-            font-size: 0.7rem;
-            border-radius: 20px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .barra-container {
-            background: #222233;
-            border-radius: 10px;
-            height: 14px;
-            width: 100%;
-            overflow: hidden;
-            margin-top: 6px;
+            z-index: 10;
+            background: rgba(0,0,0,0.6);
+            padding: 8px 15px;
+            border-radius: 8px;
             border: 1px solid #444;
         }
 
-        .barra-ki {
-            background: linear-gradient(90deg, #ff5500, #ffea00);
-            height: 100%;
-            width: 0%;
-            transition: width 0.15s ease;
+        #gameCanvas {
+            background: #2b2b2b;
+            border: 2px solid #555;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            display: block;
         }
 
-        .info-numeros {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            color: #ccc;
-            margin-top: 5px;
-        }
-
-        /* Secção de Treino */
-        .secao-treino {
-            background: #14141f;
-            border: 1px solid #33334d;
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-        }
-
-        .btn-acao {
-            background: linear-gradient(135deg, #ff5500, #ff0055);
-            color: #fff;
-            border: none;
-            padding: 16px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 30px;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(255, 85, 0, 0.4);
-            transition: transform 0.1s;
-            width: 100%;
-            margin-top: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-acao:active {
-            transform: scale(0.95);
-        }
-
-        /* Arena de Batalha */
-        .arena-batalha {
-            background: #14141f;
-            border: 2px solid #9900ff;
-            border-radius: 12px;
-            padding: 14px;
-            box-shadow: 0 0 15px rgba(153, 0, 255, 0.3);
-        }
-
-        .inimigo-topo {
+        /* Controlos Táticos no Ecrã */
+        .controls-container {
+            position: absolute;
+            bottom: 20px;
+            width: 90%;
+            max-width: 400px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            z-index: 10;
         }
 
-        .nome-inimigo {
-            color: #cc66ff;
-            font-weight: bold;
-            font-size: 0.95rem;
+        .dpad {
+            display: grid;
+            grid-template-columns: repeat(3, 45px);
+            grid-template-rows: repeat(3, 45px);
+            gap: 5px;
         }
 
-        .barra-vida-inimigo {
-            background: #222233;
-            border-radius: 10px;
-            height: 12px;
-            width: 100%;
-            overflow: hidden;
-            border: 1px solid #551a8b;
-        }
-
-        .progresso-vida {
-            background: linear-gradient(90deg, #9900ff, #ff0055);
-            height: 100%;
-            width: 100%;
-            transition: width 0.2s ease;
-        }
-
-        .btn-atacar {
-            background: linear-gradient(135deg, #9900ff, #ff0055);
-            color: #fff;
-            border: none;
-            padding: 14px;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 25px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-            box-shadow: 0 4px 12px rgba(153, 0, 255, 0.4);
-            text-transform: uppercase;
-        }
-
-        .btn-atacar:active {
-            transform: scale(0.95);
-        }
-
-        /* Log de Combate */
-        .log-combate {
-            background: #0a0a0f;
-            border: 1px solid #222233;
+        .btn-dir {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
-            padding: 10px;
-            font-size: 0.8rem;
-            color: #00ffcc;
-            min-height: 45px;
-            text-align: center;
+            color: #fff;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        footer {
-            text-align: center;
-            margin-top: 15px;
+        .btn-dir:active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .action-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-fire {
+            background: radial-gradient(circle, #ff3300, #990000);
+            border: 2px solid #ff6666;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            color: #fff;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        .btn-reload {
+            background: #333;
+            border: 1px solid #666;
+            padding: 8px 12px;
+            border-radius: 15px;
+            color: #ccc;
             font-size: 0.75rem;
-            color: #666;
+            font-weight: bold;
+        }
+
+        .btn-fire:active, .btn-reload:active {
+            transform: scale(0.92);
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>DBZ: Poder Absoluto</h1>
-        <p>Modo Fácil • Toque para evoluir rápido!</p>
-    </header>
+    <div id="hud">
+        <span style="color: #00ffcc;">HP: <span id="hpVal">100</span></span>
+        <span style="color: #ffcc00;">BALAS: <span id="ammoVal">30/30</span></span>
+        <span style="color: #ff3300;">INIMIGOS: <span id="enemiesVal">3</span></span>
+    </div>
 
-    <div class="container">
-        <!-- Estatísticas do Goku -->
-        <div class="card-guerreiro">
-            <div class="status-topo">
-                <span class="nome-guerreiro">Goku</span>
-                <span class="transformacao" id="transfTexto">Forma Base</span>
-            </div>
-            <div class="info-numeros">
-                <span>Ki Atual:</span>
-                <span id="kiTexto" style="color: #ffaa00; font-weight: bold;">0 / 5.000</span>
-            </div>
-            <div class="barra-container">
-                <div class="barra-ki" id="barraKiPreenchida"></div>
-            </div>
+    <canvas id="gameCanvas" width="360" height="420"></canvas>
+
+    <div class="controls-container">
+        <!-- Digital D-Pad -->
+        <div class="dpad">
+            <div></div>
+            <div class="btn-dir" id="btnUp">▲</div>
+            <div></div>
+            <div class="btn-dir" id="btnLeft">◄</div>
+            <div></div>
+            <div class="btn-dir" id="btnRight">►</div>
+            <div></div>
+            <div class="btn-dir" id="btnDown">▼</div>
+            <div></div>
         </div>
 
-        <!-- Secção de Treinamento -->
-        <div class="secao-treino">
-            <button class="btn-acao" onclick="treinarKi()">⚡ Concentrar Ki (+2.500)</button>
-        </div>
-
-        <!-- Arena de Batalha -->
-        <div class="arena-batalha">
-            <div class="inimigo-topo">
-                <span class="nome-inimigo">Boss: Vegeta</span>
-                <span id="nivelBoss" style="font-size: 0.8rem; color: #aaa;">Derrotas: 0</span>
-            </div>
-            <div class="info-numeros">
-                <span>HP do Vegeta:</span>
-                <span id="hpTexto" style="color: #cc66ff; font-weight: bold;">50 / 50</span>
-            </div>
-            <div class="barra-vida-inimigo">
-                <div class="progresso-vida" id="barraVidaBoss"></div>
-            </div>
-            <button class="btn-atacar" onclick="atacarBoss()">🔥 Kamehameha Instantâneo!</button>
-        </div>
-
-        <!-- Registo -->
-        <div class="log-combate" id="logCombate">
-            Toque em Concentrar Ki para começar a treinar!
+        <!-- Botões de Ação -->
+        <div class="action-btns">
+            <button class="btn-fire" id="btnFire">FOGO</button>
+            <button class="btn-reload" id="btnReload">RECARREGAR</button>
         </div>
     </div>
 
-    <footer>
-        <p>GitHub Pages • Jogo Otimizado para Telemóvel</p>
-    </footer>
-
     <script>
-        let ki = 0;
-        let kiMax = 5000;
-        let nivelTransformacao = 0;
-        let hpBoss = 50;
-        let hpMaxBoss = 50;
-        let vitorias = 0;
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-        const transformacoes = [
-            { nome: "Forma Base", max: 5000 },
-            { nome: "Kaioken", max: 15000 },
-            { nome: "Super Saiyajin", max: 40000 },
-            { nome: "Super Saiyajin Blue", max: 100000 }
+        // Estado do Jogador (Contra-Terrorista)
+        let player = {
+            x: 180,
+            y: 360,
+            radius: 12,
+            color: '#00ccff',
+            speed: 2.5,
+            hp: 100,
+            angle: 0
+        };
+
+        // Arma & Munição
+        let ammo = 30;
+        let maxAmmo = 30;
+        let isReloading = false;
+
+        // Balas e Inimigos (Terroristas)
+        let bullets = [];
+        let enemies = [];
+        let keys = { up: false, down: false, left: false, right: false };
+
+        // Obstáculos / Paredes do Mapa
+        const walls = [
+            { x: 50, y: 100, w: 100, h: 20 },
+            { x: 210, y: 100, w: 100, h: 20 },
+            { x: 130, y: 220, w: 100, h: 20 }
         ];
 
-        function atualizarInterface() {
-            let porcentagemKi = (ki / kiMax) * 100;
-            if (porcentagemKi > 100) porcentagemKi = 100;
-            document.getElementById('barraKiPreenchida').style.width = porcentagemKi + '%';
-            document.getElementById('kiTexto').innerText = ki.toLocaleString('pt-PT') + ' / ' + kiMax.toLocaleString('pt-PT');
+        function spawnEnemies() {
+            enemies = [
+                { x: 60, y: 50, hp: 40, color: '#ff3333', angle: 0 },
+                { x: 180, y: 50, hp: 40, color: '#ff3333', angle: 0 },
+                { x: 300, y: 50, hp: 40, color: '#ff3333', angle: 0 }
+            ];
+        }
 
-            if (ki >= kiMax && nivelTransformacao < transformacoes.length - 1) {
-                nivelTransformacao++;
-                kiMax = transformacoes[nivelTransformacao].max;
-                document.getElementById('transfTexto').innerText = transformacoes[nivelTransformacao].nome;
-                adicionarLog("✨ Nova Transformação: " + transformacoes[nivelTransformacao].nome + "!");
+        // Configuração dos Botões Táteis
+        function setupTouchControl(id, keyName) {
+            const btn = document.getElementById(id);
+            btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyName] = true; });
+            btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; });
+            btn.addEventListener('mousedown', () => { keys[keyName] = true; });
+            btn.addEventListener('mouseup', () => { keys[keyName] = false; });
+        }
+
+        setupTouchControl('btnUp', 'up');
+        setupTouchControl('btnDown', 'down');
+        setupTouchControl('btnLeft', 'left');
+        setupTouchControl('btnRight', 'right');
+
+        document.getElementById('btnFire').addEventListener('click', shoot);
+        document.getElementById('btnFire').addEventListener('touchstart', (e) => { e.preventDefault(); shoot(); });
+        document.getElementById('btnReload').addEventListener('click', reload);
+
+        function shoot() {
+            if (isReloading || ammo <= 0 || player.hp <= 0) return;
+
+            ammo--;
+            updateHUD();
+
+            // Disparar na direção para onde o jogador está virado (ou para cima por padrão)
+            bullets.push({
+                x: player.x,
+                y: player.y,
+                vx: Math.cos(player.angle) * 7,
+                vy: Math.sin(player.angle) * 7
+            });
+        }
+
+        function reload() {
+            if (isReloading || ammo === maxAmmo) return;
+            isReloading = true;
+            document.getElementById('ammoVal').innerText = "RECARREGANDO...";
+            setTimeout(() => {
+                ammo = maxAmmo;
+                isReloading = false;
+                updateHUD();
+            }, 1500);
+        }
+
+        function updateHUD() {
+            document.getElementById('hpVal').innerText = player.hp;
+            if (!isReloading) document.getElementById('ammoVal').innerText = ammo + '/' + maxAmmo;
+            document.getElementById('enemiesVal').innerText = enemies.length;
+        }
+
+        function update() {
+            if (player.hp <= 0) return;
+
+            // Movimento do Jogador
+            let dx = 0, dy = 0;
+            if (keys.up) dy -= player.speed;
+            if (keys.down) dy += player.speed;
+            if (keys.left) dx -= player.speed;
+            if (keys.right) dx += player.speed;
+
+            if (dx !== 0 || dy !== 0) {
+                player.angle = Math.atan2(dy, dx);
+                player.x = Math.max(15, Math.min(canvas.width - 15, player.x + dx));
+                player.y = Math.max(15, Math.min(canvas.height - 15, player.y + dy));
             }
 
-            let porcentagemVida = (hpBoss / hpMaxBoss) * 100;
-            document.getElementById('barraVidaBoss').style.width = porcentagemVida + '%';
-            document.getElementById('hpTexto').innerText = hpBoss + ' / ' + hpMaxBoss;
+            // Atualizar Balas
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                let b = bullets[i];
+                b.x += b.vx;
+                b.y += b.vy;
+
+                // Colisão das Balas com os Inimigos
+                for (let j = enemies.length - 1; j >= 0; j--) {
+                    let e = enemies[j];
+                    let dist = Math.hypot(b.x - e.x, b.y - e.y);
+                    if (dist < 15) {
+                        e.hp -= 20;
+                        bullets.splice(i, 1);
+                        if (e.hp <= 0) enemies.splice(j, 1);
+                        updateHUD();
+                        break;
+                    }
+                }
+
+                // Remover balas fora do ecrã
+                if (b && (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height)) {
+                    bullets.splice(i, 1);
+                }
+            }
+
+            // IA dos Inimigos (Moverem-se e Atacarem o Jogador)
+            enemies.forEach(e => {
+                let angle = Math.atan2(player.y - e.y, player.x - e.x);
+                e.x += Math.cos(angle) * 0.8;
+                e.y += Math.sin(angle) * 0.8;
+
+                // Ataque do inimigo ao encostar no jogador
+                let distToPlayer = Math.hypot(player.x - e.x, player.y - e.y);
+                if (distToPlayer < 20) {
+                    player.hp -= 0.5;
+                    if (player.hp < 0) player.hp = 0;
+                    updateHUD();
+                }
+            });
         }
 
-        function treinarKi() {
-            let ganho = 2500 * (nivelTransformacao + 1);
-            ki += ganho;
-            adicionarLog("⚡ Treino bem-sucedido! +" + ganho.toLocaleString('pt-PT') + " de Ki.");
-            atualizarInterface();
-        }
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        function atacarBoss() {
-            let dano = 50 * (nivelTransformacao + 1);
-            hpBoss -= dano;
+            // Desenhar Paredes / Obstáculos
+            ctx.fillStyle = '#444';
+            walls.forEach(w => {
+                ctx.fillRect(w.x, w.y, w.w, w.h);
+            });
 
-            if (hpBoss <= 0) {
-                hpBoss = 0;
-                vitorias++;
-                hpMaxBoss += 25;
-                hpBoss = hpMaxBoss;
-                adicionarLog("🏆 Vitória #" + vitorias + "! Derrotaste o Vegeta facilmente!");
-                document.getElementById('nivelBoss').innerText = "Derrotas: " + vitorias;
+            // Desenhar Balas
+            ctx.fillStyle = '#ffcc00';
+            bullets.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Desenhar Inimigos (Terroristas)
+            enemies.forEach(e => {
+                ctx.fillStyle = e.color;
+                ctx.beginPath();
+                ctx.arc(e.x, e.y, 12, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Desenhar Jogador (Contra-Terrorista)
+            if (player.hp > 0) {
+                ctx.fillStyle = player.color;
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Direção da Arma
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(player.x, player.y);
+                ctx.lineTo(player.x + Math.cos(player.angle) * 20, player.y + Math.sin(player.angle) * 20);
+                ctx.stroke();
             } else {
-                adicionarLog("💥 Kamehameha! Causaste " + dano + " de dano ao Vegeta.");
+                // Fim de Jogo
+                ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ff3300';
+                ctx.font = 'bold 24px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('TERRORISTAS VENCERAM', canvas.width / 2, canvas.height / 2);
             }
-            atualizarInterface();
+
+            // Vitória
+            if (enemies.length === 0) {
+                ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#00ffcc';
+                ctx.font = 'bold 24px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('CONTRA-TERRORISTAS VENCERAM!', canvas.width / 2, canvas.height / 2);
+            }
         }
 
-        function adicionarLog(mensagem) {
-            document.getElementById('logCombate').innerText = mensagem;
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
         }
 
-        atualizarInterface();
+        spawnEnemies();
+        updateHUD();
+        gameLoop();
     </script>
-
 </body>
 </html>
