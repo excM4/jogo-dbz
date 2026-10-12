@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dragon Ball Z - Mini Jogo</title>
+    <title>Dragon Ball Z - Treino & Batalha Fácil</title>
     <style>
         * {
             margin: 0;
@@ -13,214 +13,322 @@
         }
 
         body {
-            background-color: #0f0f11;
+            background: linear-gradient(135deg, #09090e 0%, #1a1a2e 100%);
             color: #ffffff;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             min-height: 100vh;
-            overflow: hidden;
-            touch-action: manipulation;
         }
 
         header {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         header h1 {
             font-size: 1.5rem;
             color: #ff8800;
             text-transform: uppercase;
-            text-shadow: 0 0 10px rgba(255, 136, 0, 0.5);
+            text-shadow: 0 0 12px rgba(255, 136, 0, 0.6);
+            letter-spacing: 1px;
         }
 
-        .game-container {
-            position: relative;
-            box-shadow: 0 0 20px rgba(255, 85, 0, 0.4);
-            border-radius: 10px;
-            overflow: hidden;
-            border: 2px solid #ff5500;
-        }
-
-        canvas {
-            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
-            display: block;
-        }
-
-        .instrucoes {
-            margin-top: 10px;
-            font-size: 0.85rem;
+        header p {
+            font-size: 0.8rem;
             color: #aaa;
+            margin-top: 4px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Cartão de Estatísticas */
+        .card-guerreiro {
+            background: #14141f;
+            border: 2px solid #ff5500;
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 0 15px rgba(255, 85, 0, 0.3);
+        }
+
+        .status-topo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .nome-guerreiro {
+            font-weight: bold;
+            font-size: 1.05rem;
+            color: #ffaa00;
+        }
+
+        .transformacao {
+            background: #ff5500;
+            color: #fff;
+            padding: 3px 8px;
+            font-size: 0.7rem;
+            border-radius: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .barra-container {
+            background: #222233;
+            border-radius: 10px;
+            height: 14px;
+            width: 100%;
+            overflow: hidden;
+            margin-top: 6px;
+            border: 1px solid #444;
+        }
+
+        .barra-ki {
+            background: linear-gradient(90deg, #ff5500, #ffea00);
+            height: 100%;
+            width: 0%;
+            transition: width 0.15s ease;
+        }
+
+        .info-numeros {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #ccc;
+            margin-top: 5px;
+        }
+
+        /* Secção de Treino */
+        .secao-treino {
+            background: #14141f;
+            border: 1px solid #33334d;
+            border-radius: 12px;
+            padding: 15px;
             text-align: center;
-            padding: 0 20px;
+        }
+
+        .btn-acao {
+            background: linear-gradient(135deg, #ff5500, #ff0055);
+            color: #fff;
+            border: none;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 85, 0, 0.4);
+            transition: transform 0.1s;
+            width: 100%;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-acao:active {
+            transform: scale(0.95);
+        }
+
+        /* Arena de Batalha */
+        .arena-batalha {
+            background: #14141f;
+            border: 2px solid #9900ff;
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 0 15px rgba(153, 0, 255, 0.3);
+        }
+
+        .inimigo-topo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .nome-inimigo {
+            color: #cc66ff;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .barra-vida-inimigo {
+            background: #222233;
+            border-radius: 10px;
+            height: 12px;
+            width: 100%;
+            overflow: hidden;
+            border: 1px solid #551a8b;
+        }
+
+        .progresso-vida {
+            background: linear-gradient(90deg, #9900ff, #ff0055);
+            height: 100%;
+            width: 100%;
+            transition: width 0.2s ease;
+        }
+
+        .btn-atacar {
+            background: linear-gradient(135deg, #9900ff, #ff0055);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(153, 0, 255, 0.4);
+            text-transform: uppercase;
+        }
+
+        .btn-atacar:active {
+            transform: scale(0.95);
+        }
+
+        /* Log de Combate */
+        .log-combate {
+            background: #0a0a0f;
+            border: 1px solid #222233;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.8rem;
+            color: #00ffcc;
+            min-height: 45px;
+            text-align: center;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.75rem;
+            color: #666;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>DBZ: Voo do Goku</h1>
+        <h1>DBZ: Poder Absoluto</h1>
+        <p>Modo Fácil • Toque para evoluir rápido!</p>
     </header>
 
-    <div class="game-container">
-        <canvas id="gameCanvas" width="360" height="500"></canvas>
+    <div class="container">
+        <!-- Estatísticas do Goku -->
+        <div class="card-guerreiro">
+            <div class="status-topo">
+                <span class="nome-guerreiro">Goku</span>
+                <span class="transformacao" id="transfTexto">Forma Base</span>
+            </div>
+            <div class="info-numeros">
+                <span>Ki Atual:</span>
+                <span id="kiTexto" style="color: #ffaa00; font-weight: bold;">0 / 5.000</span>
+            </div>
+            <div class="barra-container">
+                <div class="barra-ki" id="barraKiPreenchida"></div>
+            </div>
+        </div>
+
+        <!-- Secção de Treinamento -->
+        <div class="secao-treino">
+            <button class="btn-acao" onclick="treinarKi()">⚡ Concentrar Ki (+2.500)</button>
+        </div>
+
+        <!-- Arena de Batalha -->
+        <div class="arena-batalha">
+            <div class="inimigo-topo">
+                <span class="nome-inimigo">Boss: Vegeta</span>
+                <span id="nivelBoss" style="font-size: 0.8rem; color: #aaa;">Derrotas: 0</span>
+            </div>
+            <div class="info-numeros">
+                <span>HP do Vegeta:</span>
+                <span id="hpTexto" style="color: #cc66ff; font-weight: bold;">50 / 50</span>
+            </div>
+            <div class="barra-vida-inimigo">
+                <div class="progresso-vida" id="barraVidaBoss"></div>
+            </div>
+            <button class="btn-atacar" onclick="atacarBoss()">🔥 Kamehameha Instantâneo!</button>
+        </div>
+
+        <!-- Registo -->
+        <div class="log-combate" id="logCombate">
+            Toque em Concentrar Ki para começar a treinar!
+        </div>
     </div>
 
-    <p class="instrucoes">Toca no ecrã para fazer o Goku subir e desvia-te das rajadas de Ki!</p>
+    <footer>
+        <p>GitHub Pages • Jogo Otimizado para Telemóvel</p>
+    </footer>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+        let ki = 0;
+        let kiMax = 5000;
+        let nivelTransformacao = 0;
+        let hpBoss = 50;
+        let hpMaxBoss = 50;
+        let vitorias = 0;
 
-        let goku = {
-            x: 50,
-            y: 250,
-            radius: 18,
-            gravity: 0.5,
-            lift: -8,
-            velocity: 0
-        };
+        const transformacoes = [
+            { nome: "Forma Base", max: 5000 },
+            { nome: "Kaioken", max: 15000 },
+            { nome: "Super Saiyajin", max: 40000 },
+            { nome: "Super Saiyajin Blue", max: 100000 }
+        ];
 
-        let obstacles = [];
-        let frameCount = 0;
-        let score = 0;
-        let isGameOver = false;
+        function atualizarInterface() {
+            let porcentagemKi = (ki / kiMax) * 100;
+            if (porcentagemKi > 100) porcentagemKi = 100;
+            document.getElementById('barraKiPreenchida').style.width = porcentagemKi + '%';
+            document.getElementById('kiTexto').innerText = ki.toLocaleString('pt-PT') + ' / ' + kiMax.toLocaleString('pt-PT');
 
-        function jump() {
-            if (isGameOver) {
-                resetGame();
+            if (ki >= kiMax && nivelTransformacao < transformacoes.length - 1) {
+                nivelTransformacao++;
+                kiMax = transformacoes[nivelTransformacao].max;
+                document.getElementById('transfTexto').innerText = transformacoes[nivelTransformacao].nome;
+                adicionarLog("✨ Nova Transformação: " + transformacoes[nivelTransformacao].nome + "!");
+            }
+
+            let porcentagemVida = (hpBoss / hpMaxBoss) * 100;
+            document.getElementById('barraVidaBoss').style.width = porcentagemVida + '%';
+            document.getElementById('hpTexto').innerText = hpBoss + ' / ' + hpMaxBoss;
+        }
+
+        function treinarKi() {
+            let ganho = 2500 * (nivelTransformacao + 1);
+            ki += ganho;
+            adicionarLog("⚡ Treino bem-sucedido! +" + ganho.toLocaleString('pt-PT') + " de Ki.");
+            atualizarInterface();
+        }
+
+        function atacarBoss() {
+            let dano = 50 * (nivelTransformacao + 1);
+            hpBoss -= dano;
+
+            if (hpBoss <= 0) {
+                hpBoss = 0;
+                vitorias++;
+                hpMaxBoss += 25;
+                hpBoss = hpMaxBoss;
+                adicionarLog("🏆 Vitória #" + vitorias + "! Derrotaste o Vegeta facilmente!");
+                document.getElementById('nivelBoss').innerText = "Derrotas: " + vitorias;
             } else {
-                goku.velocity = goku.lift;
+                adicionarLog("💥 Kamehameha! Causaste " + dano + " de dano ao Vegeta.");
             }
+            atualizarInterface();
         }
 
-        window.addEventListener('touchstart', jump);
-        window.addEventListener('click', jump);
-
-        function resetGame() {
-            goku.y = 250;
-            goku.velocity = 0;
-            obstacles = [];
-            score = 0;
-            frameCount = 0;
-            isGameOver = false;
-            loop();
+        function adicionarLog(mensagem) {
+            document.getElementById('logCombate').innerText = mensagem;
         }
 
-        function createObstacle() {
-            let gap = 140;
-            let minHeight = 50;
-            let maxHeight = canvas.height - gap - 50;
-            let topHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
-
-            obstacles.push({
-                x: canvas.width,
-                top: topHeight,
-                bottom: canvas.height - topHeight - gap,
-                width: 45,
-                passed: false
-            });
-        }
-
-        function update() {
-            if (isGameOver) return;
-
-            goku.velocity += goku.gravity;
-            goku.y += goku.velocity;
-
-            if (goku.y + goku.radius > canvas.height) {
-                goku.y = canvas.height - goku.radius;
-                isGameOver = true;
-            }
-            if (goku.y - goku.radius < 0) {
-                goku.y = goku.radius;
-                goku.velocity = 0;
-            }
-
-            if (frameCount % 90 === 0) {
-                createObstacle();
-            }
-
-            for (let i = obstacles.length - 1; i >= 0; i--) {
-                obstacles[i].x -= 3;
-
-                if (
-                    goku.x + goku.radius > obstacles[i].x &&
-                    goku.x - goku.radius < obstacles[i].x + obstacles[i].width &&
-                    (goku.y - goku.radius < obstacles[i].top || goku.y + goku.radius > canvas.height - obstacles[i].bottom)
-                ) {
-                    isGameOver = true;
-                }
-
-                if (!obstacles[i].passed && obstacles[i].x < goku.x) {
-                    score += 10;
-                    obstacles[i].passed = true;
-                }
-
-                if (obstacles[i].x + obstacles[i].width < 0) {
-                    obstacles.splice(i, 1);
-                }
-            }
-
-            frameCount++;
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = '#ff3300';
-            ctx.shadowColor = '#ff5500';
-            ctx.shadowBlur = 10;
-            
-            obstacles.forEach(obs => {
-                ctx.fillRect(obs.x, 0, obs.width, obs.top);
-                ctx.fillRect(obs.x, canvas.height - obs.bottom, obs.width, obs.bottom);
-            });
-
-            ctx.shadowBlur = 0;
-
-            ctx.fillStyle = '#ffaa00';
-            ctx.beginPath();
-            ctx.arc(goku.x, goku.y, goku.radius, 0, Math.PI * 2);
-            ctx.fill();
-            
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            ctx.arc(goku.x, goku.y, goku.radius - 6, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 20px sans-serif';
-            ctx.textAlign = 'left';
-            ctx.fillText('KI: ' + score, 15, 30);
-
-            if (isGameOver) {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                ctx.fillStyle = '#ff3300';
-                ctx.font = 'bold 28px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('FIM DE JOGO', canvas.width / 2, canvas.height / 2 - 20);
-
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '16px sans-serif';
-                ctx.fillText('Pontuação Final: ' + score, canvas.width / 2, canvas.height / 2 + 15);
-                ctx.fillText('Toca no ecrã para recomeçar', canvas.width / 2, canvas.height / 2 + 55);
-            }
-        }
-
-        function loop() {
-            update();
-            draw();
-            if (!isGameOver) {
-                requestAnimationFrame(loop);
-            }
-        }
-
-        loop();
+        atualizarInterface();
     </script>
 
 </body>
