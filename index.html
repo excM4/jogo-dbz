@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon Ball Z - Mini Jogo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0f0f11;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            color: #ff8800;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 136, 0, 0.5);
+        }
+
+        .game-container {
+            position: relative;
+            box-shadow: 0 0 20px rgba(255, 85, 0, 0.4);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #ff5500;
+        }
+
+        canvas {
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            display: block;
+        }
+
+        .instrucoes {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #aaa;
+            text-align: center;
+            padding: 0 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>DBZ: Voo do Goku</h1>
+    </header>
+
+    <div class="game-container">
+        <canvas id="gameCanvas" width="360" height="500"></canvas>
+    </div>
+
+    <p class="instrucoes">Toca no ecrã para fazer o Goku subir e desvia-te das rajadas de Ki!</p>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let goku = {
+            x: 50,
+            y: 250,
+            radius: 18,
+            gravity: 0.5,
+            lift: -8,
+            velocity: 0
+        };
+
+        let obstacles = [];
+        let frameCount = 0;
+        let score = 0;
+        let isGameOver = false;
+
+        function jump() {
+            if (isGameOver) {
+                resetGame();
+            } else {
+                goku.velocity = goku.lift;
+            }
+        }
+
+        window.addEventListener('touchstart', jump);
+        window.addEventListener('click', jump);
+
+        function resetGame() {
+            goku.y = 250;
+            goku.velocity = 0;
+            obstacles = [];
+            score = 0;
+            frameCount = 0;
+            isGameOver = false;
+            loop();
+        }
+
+        function createObstacle() {
+            let gap = 140;
+            let minHeight = 50;
+            let maxHeight = canvas.height - gap - 50;
+            let topHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+
+            obstacles.push({
+                x: canvas.width,
+                top: topHeight,
+                bottom: canvas.height - topHeight - gap,
+                width: 45,
+                passed: false
+            });
+        }
+
+        function update() {
+            if (isGameOver) return;
+
+            goku.velocity += goku.gravity;
+            goku.y += goku.velocity;
+
+            if (goku.y + goku.radius > canvas.height) {
+                goku.y = canvas.height - goku.radius;
+                isGameOver = true;
+            }
+            if (goku.y - goku.radius < 0) {
+                goku.y = goku.radius;
+                goku.velocity = 0;
+            }
+
+            if (frameCount % 90 === 0) {
+                createObstacle();
+            }
+
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                obstacles[i].x -= 3;
+
+                if (
+                    goku.x + goku.radius > obstacles[i].x &&
+                    goku.x - goku.radius < obstacles[i].x + obstacles[i].width &&
+                    (goku.y - goku.radius < obstacles[i].top || goku.y + goku.radius > canvas.height - obstacles[i].bottom)
+                ) {
+                    isGameOver = true;
+                }
+
+                if (!obstacles[i].passed && obstacles[i].x < goku.x) {
+                    score += 10;
+                    obstacles[i].passed = true;
+                }
+
+                if (obstacles[i].x + obstacles[i].width < 0) {
+                    obstacles.splice(i, 1);
+                }
+            }
+
+            frameCount++;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#ff3300';
+            ctx.shadowColor = '#ff5500';
+            ctx.shadowBlur = 10;
+            
+            obstacles.forEach(obs => {
+                ctx.fillRect(obs.x, 0, obs.width, obs.top);
+                ctx.fillRect(obs.x, canvas.height - obs.bottom, obs.width, obs.bottom);
+            });
+
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = '#ffaa00';
+            ctx.beginPath();
+            ctx.arc(goku.x, goku.y, goku.radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(goku.x, goku.y, goku.radius - 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 20px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('KI: ' + score, 15, 30);
+
+            if (isGameOver) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#ff3300';
+                ctx.font = 'bold 28px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('FIM DE JOGO', canvas.width / 2, canvas.height / 2 - 20);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '16px sans-serif';
+                ctx.fillText('Pontuação Final: ' + score, canvas.width / 2, canvas.height / 2 + 15);
+                ctx.fillText('Toca no ecrã para recomeçar', canvas.width / 2, canvas.height / 2 + 55);
+            }
+        }
+
+        function loop() {
+            update();
+            draw();
+            if (!isGameOver) {
+                requestAnimationFrame(loop);
+            }
+        }
+
+        loop();
+    </script>
+
+</body>
+</html>
